@@ -37,8 +37,8 @@ import * as tomNookSVG from './resources/illustration/tom-nook.svg';
 
 // Camera stream video element
 let video;
-let videoWidth = 300;
-let videoHeight = 300;
+let videoWidth = 200;
+let videoHeight = 200;
 
 // Canvas
 let faceDetection = null;
@@ -112,8 +112,9 @@ const defaultInputResolution = 200;
 const guiState = {
   avatarSVG: Object.keys(avatarSvgs)[0],
   debug: {
-    showDetectionDebug: true,
+    showDetectionDebug: false,
     showIllustrationDebug: false,
+    showCamera: false,
   },
 };
 
@@ -135,6 +136,7 @@ function setupGui(cameras) {
   let output = gui.addFolder('Debug control');
   output.add(guiState.debug, 'showDetectionDebug');
   output.add(guiState.debug, 'showIllustrationDebug');
+  output.add(guiState.debug, 'showCamera');
   output.open();
 }
 
@@ -173,6 +175,7 @@ function detectPoseInRealTime(video) {
     videoCtx.scale(-1, 1);
     videoCtx.translate(-videoWidth, 0);
     videoCtx.drawImage(video, 0, 0, videoWidth, videoHeight);
+
     videoCtx.restore();
 
     // Creates a tensor from an image
@@ -185,6 +188,10 @@ function detectPoseInRealTime(video) {
       scoreThreshold: minPartConfidence,
       nmsRadius: nmsRadius
     });
+
+    if(!guiState.debug.showCamera){
+      videoCtx.clearRect(0, 0, videoWidth, videoHeight);
+    }
 
     poses = poses.concat(all_poses);
     input.dispose();
@@ -207,9 +214,14 @@ function detectPoseInRealTime(video) {
 
     canvasScope.project.clear();
 
+    // var ctx = canvasScope.getContext("2d");
+    // ctx.fillStyle = "blue";
+    // ctx.fillRect(0, 0, canvasScope.width, canvasScope.height);
+
+
+
     if (poses.length >= 1 && illustration) {
       Skeleton.flipPose(poses[0]);
-
       if (faceDetection && faceDetection.length > 0) {
         let face = Skeleton.toFaceFrame(faceDetection[0]);
         illustration.updateSkeleton(poses[0], face);

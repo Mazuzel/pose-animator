@@ -70,6 +70,18 @@ export class PoseIllustration {
             return;
         }
         let scope = this.scope;
+
+        var rect = new scope.Path.Rectangle({
+            point: [0, 0],
+            //size: [view.size.width / 2, view.size.height / 2],
+            size: [400, 400],
+            strokeColor: '#00ff00',
+            selected: true
+        });
+        rect.sendToBack();
+        rect.fillColor = '#00ff00';
+        scope.project.activeLayer.addChild(rect);
+
         // Add paths
         this.skinnedPaths.forEach(skinnedPath => {
             // Do not render paths with low confidence scores.
